@@ -122,7 +122,7 @@ df5[df5$Major == "Math",]
 
 ### Data Import from csv
 ```{r}
-Example1 = read.csv("/Users/bivin/Desktop/OLD COMPUTER ARCHIVES/KadAfrica/MSDS/DDS/DDS2/Unit 1 Git-ing Sta-R-ted/Datasets/BusinessSales.csv",header = TRUE)
+Example1 = read.csv("C:/Users/allep/OneDrive/Documents/MDS-6306-Doing-Data-Science/Unit 1/BusinessSales.csv",header = TRUE)
 Example1$sales
 
 ```
@@ -157,7 +157,7 @@ mpg$cty #look at all city mpg values.
 
 ### Read in file.
 ```{r}
-Example1 = read.csv("/Users/bivin/Desktop/OLD COMPUTER ARCHIVES/KadAfrica/MSDS/DDS/DDS2/Unit 1 Git-ing Sta-R-ted/Datasets/BusinessSales.csv",header = TRUE)
+Example1 = read.csv("C:/Users/allep/OneDrive/Documents/MDS-6306-Doing-Data-Science/Unit 1/BusinessSales.csv",header = TRUE)
 head(Example1)
 ```
 
