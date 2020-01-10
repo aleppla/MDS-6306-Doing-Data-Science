@@ -130,7 +130,7 @@ mpg %>%
 ggplot(mapping = aes(x = class)) + 
 geom_bar()
 
-mpg %>% + ggplot(mapping = aes(x = class, y = ..prop.., group = 1)) + geom_bar()
+mpg %>% ggplot(mapping = aes(x = class, y = ..prop.., group = 1)) + geom_bar()
 ```
 
 ### AES: color
@@ -172,21 +172,6 @@ mpg %>% ggplot(aes(x = hwy, y = cty, size = mpg$displ)) + geom_point()
 ```
 
 
-### AES: size
-```{r}
-mpg %>% ggplot(aes(x = hwy, y = cty, size = mpg$displ)) + geom_point()
-
-```
-
-
-### AES: size
-```{r}
-mpg %>% ggplot(aes(x = hwy, y = cty, size = mpg$displ)) + geom_point()
-
-```
-
-
-
 ### AES: alpha
 ```{r}
 mpg %>% ggplot(aes(x = hwy, y = cty, alpha = mpg$displ)) + geom_point()
@@ -215,6 +200,16 @@ geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
 
 ```
 
+###My Try Coding
+
+mpg %>% ggplot(aes(x=hwy, y=cty,color=drv)) + geom_point() 
+mpg %>% ggplot(aes(x=hwy, y=cty)) + geom_smooth()
+mpg %>% ggplot(aes(x=hwy, y=cty, linetype=drv)) + geom_smooth()
+mpg %>% ggplot(aes(x=hwy, y=cty,color=drv)) + geom_point() + geom_smooth()
+
+mpg %>% ggplot() + geom_point(aes(x=hwy, y=cty,color=class)) + geom_smooth(aes(x=hwy, y=cty,linetype=drv), color="black")
+
+
 ### geom_smooth you try it
 ```{r}
 ggplot(data = mpg) + 
@@ -241,7 +236,7 @@ geom_smooth(mapping = aes(x = hwy, y = cty, linetype = drv, color = drv))
 #Individual aes() …. an aesthetic for each layer
 ggplot(data = mpg) + 
 geom_point(mapping = aes(x = hwy, y = cty, color = class)) +
-geom_smooth(mapping = aes(x = hwy, y = cty, linetype = class, color = class)) + facet_wrap(~class)
+geom_smooth(mapping = aes(x = hwy, y = cty, linetype = class)) + facet_wrap(~class)
 
 
 ```
@@ -253,6 +248,9 @@ geom_boxplot() +
 ggtitle("Boxplot of City MPG v. Class") + 
 xlab("Class") + ylab("City MPG")
 ```
+
+###My Try
+mpg %>% ggplot() + geom_point(aes(x=hwy, y=cty,color=class)) + geom_smooth(aes(x=hwy, y=cty,linetype=drv), color="black") + ggtitle("Scatterplot by Class & Loess Fit by DriveType: City vs. Hwy MPG") + xlab("Highway MPG") + ylab("City MPG")
 
 
 ### facets
@@ -278,9 +276,7 @@ geom_point(mapping = aes(x = hwy, y = cty, color = drv)) +
 geom_smooth(mapping = aes(x = hwy, y = cty, linetype = drv)) +
 facet_grid(drv~class)
 
-ggplot(data = mpg, aes(fill = drv)) + 
-geom_histogram(mapping = aes(x = cty)) +
-facet_grid(drv~class)
+ggplot(data = mpg, aes(x=cty,fill = drv)) + geom_histogram() + facet_grid(drv~class)
 
 ```
 
