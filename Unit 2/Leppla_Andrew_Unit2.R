@@ -96,9 +96,10 @@ p
 #Years in the league
 bball$years=bball$year_end-bball$year_start
 
-bball %>% ggplot(aes(weight,years)) + geom_count()
-bball[bball$years==0,] %>% ggplot(aes(height1,years)) + geom_count()
+bball %>% ggplot(aes(weight,years)) + geom_count() + 
+  ggtitle("Counts Chart of Weight vs. Years in the NBA")
 
+print(bball[bball$weight>300,])
 
 ##Separate dataset:  The EducationIncome.csv dataset has incomes of randomly selected Americans and their level of education
 ###Visually test the claim that the distribution of incomes increase (mean or median) as the education level rises. 
