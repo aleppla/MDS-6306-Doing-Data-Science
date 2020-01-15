@@ -57,7 +57,7 @@ df %>% arrange(df$Age)
 # NA end up at the end of the list when sorted on column with NAs.
 ```
 
-##Select v. Filter
+##Select (columns) v. Filter (rows)
 ```{r}
 # chooses rows with year < 2000
 mpg %>% filter(year < 2000)
@@ -84,7 +84,7 @@ ggpairs(aes(color = class))
 ```{r}
 install.packages("GGally")
 library(GGally)
-fifa = read.csv("/Users/bivin/Desktop/OLD COMPUTER ARCHIVES/KadAfrica/MSDS/DDS/DDS2/Datasets", header = TRUE)
+fifa = read.csv("C:/Users/aleppla/GitRepos/MDS-6306-Doing-Data-Science/Unit 3/FIFA Players.csv", header = TRUE)
 head(fifa)
 fifa %>% select(Finishing, BallControl, ShotPower) %>% ggpairs()
 
@@ -92,7 +92,7 @@ fifa %>% select(Finishing, BallControl, ShotPower) %>% ggpairs()
 fifa %>%
 filter(Preferred.Foot == "Right" | Preferred.Foot == "Left") %>% 
 select(Finishing, BallControl, ShotPower, Preferred.Foot) %>% ggpairs(aes(color = Preferred.Foot))
-
+ 
 #Right Strikers
 fifa %>%
 filter(Preferred.Foot == "Right" | Preferred.Foot == "Left" & Position == "RS") %>%
@@ -112,13 +112,13 @@ library(nycflights13)
 ```
 
 
-## group_by
+## group_by (Summary Tables)
 ```{r}
 #class
 mpg %>% group_by(class) %>% summarize(meanCTY = mean(cty), count = n())
 
 # class and model
-mpg %>% group_by(class, model) %>% summarize(meanCTY = mean(cty), count = n())
+mpg %>% group_by(class, year) %>% summarize(meanCTY = mean(cty), count = n())
 
 #Chapter 2 example
 mpg %>% group_by(class) %>% summarize(sum(cty))
@@ -128,16 +128,16 @@ mpg %>% group_by(class) %>% summarize(sum(cty))
 # With missing Position
 fifa %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% print(n = 28)
 
-# With missing values in BC removed in mean call
+# With missing values in BC removed in mean call (na.rm="NA remove")
 fifa %>% group_by(Position) %>% summarize(meanBC = mean(BallControl,na.rm = TRUE), count = n()) %>% print(n = 28)
 
 # With missing missing values removed before mean call
-fifa %>% filter(!is.na(BallControl)) %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% arrange(meanBC) %>% ggplot(aes(x = Position, y = meanBC)) + geom_col()
+fifa %>% filter(!is.na(BallControl)) %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% print(n = 28)
 
 #Bar Chart to visualize ball control by position
 fifa %>% filter(!is.na(BallControl)) %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% ggplot(aes(x = Position, y = meanBC)) + geom_col()
 
-#Arrange to see in order
+#Arrange to see table in order
 fifa %>% filter(!is.na(BallControl)) %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% arrange(meanBC) %>% print(n=28)
 
 ```
@@ -192,7 +192,7 @@ geom_point()
 fifa_BC = fifa %>% filter(!is.na(BallControl)) %>% group_by(Position) %>% summarize(meanBC = mean(BallControl), count = n()) %>% arrange(meanBC) %>% print(n=28)
 
 #reorder level of Postition factor
-fifa_BC$Position = factor(fifa_BC$Position, level = fifa_BC$Position[order(fifa_BC$meanBC)])
+fifa_BC$Position = factor(fifa_BC$Position, level = fifa_BC$Position[order(fifa_BC$meanBC,decreasing=T)])
 
 # column plot of ordered results
 fifa_BC %>% ggplot(aes(x = Position, y = meanBC)) + geom_col()
@@ -200,10 +200,11 @@ fifa_BC %>% ggplot(aes(x = Position, y = meanBC)) + geom_col()
 
 
 ### Cut Example with mpg data
+### Splits a continuous variable into factor segments/bins
 ```{r}
-displ_Factor = cut(mpg$displ, breaks = c(1,4,6,8), labels = c("Low","Medium","High"))
+mpg$displ_Factor = cut(mpg$displ, breaks = c(1,4,6,8), labels = c("Low","Medium","High"))
 
-mpg %>% mutate(displ_Factor = displ_Factor) %>% ggplot(aes(x = hwy, y = cty, color = displ_Factor)) +geom_point() + ggtitle("City MPG v. Highway MPG by Displacement")
+mpg %>% ggplot(aes(x = hwy, y = cty, color = displ_Factor)) +geom_point() + ggtitle("City MPG v. Highway MPG by Displacement")
 
 ```
 
@@ -212,13 +213,13 @@ mpg %>% mutate(displ_Factor = displ_Factor) %>% ggplot(aes(x = hwy, y = cty, col
 ```{r}
 df = data.frame(x = c(1,2,3,4), y =c(3,4,5,6), z = c(1,2,3,14))
 df
-sapply(df,function(x) mean(x))
+sapply(df,function(x) mean(x)) #applies a function to each data frame column (not just column x)
 
 #Toy Example
 # Bring in MissingValueToy.csv as ’a’
-a = read.csv(file.choose(),header = TRUE)
+a = read.csv('C:/Users/aleppla/GitRepos/MDS-6306-Doing-Data-Science/Unit 3/MissingDataToy.csv',header = TRUE)
 # count missing values in each column
-s = sapply(a, function(x) sum(is.na(x)))
+
 # Make all missing values NA
 str(a)
 a$chars[6] = NA
@@ -245,29 +246,34 @@ library(nycflights13)
 gg_miss_var(flights)
 sapply(flights, function(x) sum(is.na(x)))
 
+#Async 3.5 - Replace z=0 and z>20 with NA in diamonds data set
+diamonds1 = diamonds %>%  replace_with_na(replace= list(z=0))
+diamonds1 = diamonds1 %>%  replace_with_na_at(.vars = 'z', condition= ~.x>20)
+gg_miss_var(diamonds1)
+#In 1 line of code
+diamonds2 = diamonds %>%  replace_with_na_at(.vars = 'z', condition= ~(.x==0 | .x>20))
+gg_miss_var(diamonds2)
+
 ```
 
-##Ouliers
+##Outliers
 ```{r}
 #Find unusual city mpg values
-library(ploltly)
+library(plotly)
 p = mpg %>% 
 ggplot(aes(x = cty)) + geom_histogram()
 ggplotly(p)
 
 #Find unusual city mpg values
-library(ploltly)
 p = mpg %>% 
 ggplot(aes(y = cty,label = model)) + geom_boxplot()
 ggplotly(p)
 
 #Find unusual arrival delay values
-library(ploltly)
 p = flights %>% ggplot(aes(x = arr_delay)) + geom_histogram()
 ggplotly(p)
 
 #Find unusual arrival delay values
-library(ploltly)
 p = flights %>% 
 ggplot(aes(y = arr_delay)) + geom_boxplot()
 ggplotly(p)
@@ -282,7 +288,7 @@ p = diamonds %>% ggplot(aes(x = carat)) + geom_histogram()
 ggplotly(p)
 
 #Find unusual y values
-p = diamonds %>% ggplot(aes(x = y)) + geom_histogram()
+p = diamonds %>% ggplot(aes(x = z)) + geom_histogram()
 ggplotly(p)
 
 #Check if they are Potentially Errors or just Outliers. 
@@ -337,8 +343,7 @@ ggplot(aes(x = dep_delay, y = arr_delay)) +
 geom_boxplot(mapping = aes(group = cut_width(dep_delay,50)))+ 
 xlim(c(0,700))
 
-mpg %>% ggplot(aes(x = displ, y = cty)) + 
-geom_point(color = class)
+mpg %>% ggplot(aes(x = displ, y = hwy,color = class)) + geom_point()
 
 mpg %>% 
 select(displ, hwy, class) %>% 
@@ -361,7 +366,7 @@ group_by(cut) %>%
 summarize(median = median(carat))
 
 diamonds %>%
-ggplot(aes(x = carat, y = price)) + 
+ggplot(aes(x = carat, y = price,color=cut)) + 
 geom_point()
 
 diamonds %>% 
@@ -375,6 +380,11 @@ ggplot(aes(x = lcarat, y = lprice)) +
 geom_point() + 
 geom_smooth(method = "lm") + 
 ylim(c(5.5, 10))
+
+#Log-Log Model Fit
+diamonds = diamonds %>% 
+mutate(lcarat = log(carat), lprice = log(price))
+fit = lm(data=diamonds, lprice~lcarat)
 
 diamonds %>%
 mutate(resids = exp(fit$residuals)) %>%
