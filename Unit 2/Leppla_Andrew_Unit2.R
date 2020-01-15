@@ -104,17 +104,21 @@ print(bball[bball$weight>300,])
 ##Separate dataset:  The EducationIncome.csv dataset has incomes of randomly selected Americans and their level of education
 ###Visually test the claim that the distribution of incomes increase (mean or median) as the education level rises. 
 
-Educ.Inc = read.csv('C:/Users/aleppla/Documents/Andy - Personal/MS DataSci/MSDS 6306 - Doing Data Science/Unit 2/Education_Income.csv')
+Educ.Inc = read.csv('C:/Users/allep/OneDrive/Documents/MDS-6306-Doing-Data-Science/Unit 2/Education_Income.csv')
 summary(Educ.Inc)
 
 #Reorder Educ so >16 is after 16
 Educ.Inc$Educ1 = factor(Educ.Inc$Educ, levels(Educ.Inc$Educ)[c(1,3:5,2)])
 levels(Educ.Inc$Educ1)
 
-Educ.Inc %>% ggplot(aes(x=Income2005,fill=Educ1)) + geom_histogram(position="dodge") + coord_cartesian(xlim=c(0,250000)) +
+Educ.Inc %>% ggplot(aes(x=Income2005,fill=Educ1)) + geom_histogram(position="dodge") + coord_cartesian(xlim=c(0,200000)) +
   ggtitle("Income Distributions by Education Level") + xlab("2005 Income ($)") + ylab("Count")
 
-scale_x_log10()  # convert to log scale
+Educ.Inc %>% ggplot(aes(x=Income2005,fill=Educ1)) + stat_bin(position="dodge",bins=15) + 
+  coord_cartesian(xlim=c(1000,500000)) + ggtitle("Log Scale Income Distributions by Education Level") + 
+  xlab("2005 Income ($)") + ylab("Count") + scale_x_log10()
+
+#scale_x_log10()  # convert to log scale
 
 #Log transform for highly right-skewed data
 Educ.Inc$Log.Inc=log(Educ.Inc$Income2005)
