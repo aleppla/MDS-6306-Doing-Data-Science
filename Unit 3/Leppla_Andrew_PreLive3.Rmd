@@ -1,0 +1,94 @@
+---
+title: "Untitled"
+author: "Andy"
+date: "1/15/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Part 1
+
+##Set Up
+```{r}
+library(tidyverse)
+library(GGally)
+fifa = read.csv("~/MDS-6306-Doing-Data-Science/Unit 3/FIFA Players.csv", header = TRUE)
+
+```
+
+##Filter for positions LM and LF
+##Plot Position vs. Accel and Agility
+```{r}
+summary(fifa$Position)
+fifa1 = fifa %>% filter(Position == "LM" | Position == "LF")
+fifa1$Position=factor(fifa1$Position,levels=c("LM","LF"))
+summary(fifa1$Position)
+fifa1 %>% filter(Position == "LM" | Position == "LF") %>% select(Acceleration,Agility,Position) %>% ggpairs(aes(color=Position)) +
+  ggtitle("FIFA Left Midfielders (LM) vs. Left Forwards (LF)")
+
+```
+
+##6 Step Hypothesis Test - 2 Sample t
+```{r}
+#Equal Variance
+t.test(data=fifa1,Agility~Position,var.equal=T)
+t.crit=qt(0.975,1108)
+t.crit
+
+#Unequal Variance
+t.test(data=fifa1,Agility~Position,var.equal=F)
+t.crit.Welch=qt(0.975,14.48)
+t.crit.Welch
+
+#Log Transform
+fifa1$log.Agility=log(fifa1$Agility)
+t.test(data=fifa1,log.Agility~Position,var.equal=T)
+
+#Assumptions
+##Normality and Equal Variance
+fifa1 %>% ggplot(aes(x=Position,y=Agility)) + geom_boxplot() + ggtitle("Agility of Left-Midfielders (LM) vs. Left-Fowards (LF) in FIFA") + ylab("Agility")
+
+#QQ Plots
+fifa1 %>% ggplot(aes(sample=Agility,color=Position)) + geom_qq() + geom_qq_line() +  facet_grid(~Position) + ggtitle("QQ Normality Plots")
+
+#Scaled Histograms
+fifa1$cut_Agil = cut(fifa1$Agility, breaks = c(35,40,45,50,55,60,65,70,75,80,85,90,95,100))
+
+fifa1 %>% ggplot(aes(x=cut_Agil,y=..prop..,group=1,fill=Position)) + geom_bar() + facet_grid(rows=vars(Position)) + ggtitle("Agility of Left-Midfielders (LM) vs. Left-Fowards (LF) in FIFA") + xlab("Agility") + ylab("Proportion")
+
+```
+
+#EDA
+```{r}
+#Select 2 continuous and 2 cut categorical variables
+fifa2 = fifa %>% select(Jersey.Number, Finishing,HeadingAccuracy,Jumping) 
+
+#Cut Jumping into quartiles from summary data
+fifa2$Jump = cut(fifa2$Jumping, breaks=c(10,58,65,75,100))
+summary(fifa2$Jump)
+
+#Look at all Jerseys vs. #9
+fifa2$Jerseys = cut(fifa$Jersey.Number, breaks=c(0,6,7,8,9,10,11,100))
+
+#Narrow in on low numbers (forwards?)
+fifa2$Jerseys = cut(fifa$Jersey.Number, breaks=c(4,5,6,7,8,9,10,11,12,13,14))
+
+#Explore the data with GGally pairs
+fifa2 %>% filter(!is.na(Jerseys)) %>% select(Finishing,HeadingAccuracy,Jerseys,Jump) %>% ggpairs(aes(color=Jerseys))
+
+```
+
+```{r}
+#Filter out low Finishing Jersey Numbers
+fifa2$Jerseys = cut(fifa$Jersey.Number, breaks=c(5,6,7,8,9,10,11))
+
+fifa2 %>% filter(!is.na(Jerseys)) %>% select(Finishing,HeadingAccuracy,Jerseys,Jump) %>% ggpairs(aes(color=Jerseys))
+
+fifa2 %>% filter(!is.na(Jerseys)) %>%  ggplot(aes(HeadingAccuracy,Finishing,color=Jerseys)) + geom_point() + geom_smooth(method="lm") + facet_wrap(~Jerseys)
+
+outlier9 = fifa %>% filter(Jersey.Number==9 & HeadingAccuracy>75 & Finishing<25)
+outlier9
+```
