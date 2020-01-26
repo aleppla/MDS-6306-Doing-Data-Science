@@ -1,0 +1,65 @@
+#XML
+
+XML = extensible markup language
+Renders content in websites
+
+Tags
+Opening < >
+Closing </ >
+Nested -< >
+
+One single root element
+
+R library 'xml'
+
+
+#JSON
+
+JSON = JavaScript Object Notation
+Alternative to XML
+Commonly used for APIs
+
+www.json.org
+
+Unnmamed arrays in{ [ ]
+[1,2,3] or [true,true,false]
+
+Named arrays in { }
+{"dollars":5, "euros":20}
+{"city":"Berkeley","state":"CA"}
+
+Nesting -  
+
+{
+
+"name": ["X","Y","Z"],
+
+"grams": [300,200,500],
+
+"qty": [4, 5, null],
+
+"new": [true, false, true],
+
+}
+
+or
+
+[
+
+{"name": "X", "grams": 300, "qty": 4, "new": true},
+
+{"name": "Y", "grams": 200, "qty": 5, "new": false},
+
+{"name": "Z", "grams": 500, "qty": null, "new": true},
+
+]
+
+R packages: jsonlite, RJSONIO, rjson
+toJSON()
+fromJSON()
+
+
+#APIs
+API = Application Programming Interface 
+
+Great for reproducibility
