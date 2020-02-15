@@ -29,17 +29,28 @@ dfTrain %>% ggplot(aes(x = CreditRating, y = income, color = Qualify)) + geom_po
 
 dfTest = data.frame(income = 92, CreditRating = 694)
 
-knn(dfTrain[,1:2], dfTest, dfTrain$Qualify, k = 5, prob = TRUE)
+knn(dfTrain[,1:2], dfTest, dfTrain$Qualify, k = 3, prob = TRUE)
 ```
 
 
 #Iris Example Classification
 ```{r}
-irisVersVirg = iris %>% filter(Species == "versicolor" | Species == "virginica")
+irisVersVirg = iris %>% filter(Species != "setosa")
 
 df = data.frame(Sepal.Length = 6.20 , Sepal.Width = 2.80 )
 knn(irisVersVirg[,c(1,2)], df, irisVersVirg$Species, k = 5, prob = TRUE)
 knn(irisVersVirg[,c(1,2)], df, irisVersVirg$Species, k = 15, prob = TRUE)
+
+
+#Async Exercises
+
+df1 = data.frame(Sepal.Length = 6.10 , Sepal.Width = 2.50 )
+knn(irisVersVirg[,c(1,2)], df1, irisVersVirg$Species, k = 5, prob = TRUE)
+knn(irisVersVirg[,c(1,2)], df1, irisVersVirg$Species, k = 15, prob = TRUE)
+
+df2 = data.frame(Sepal.Length = 6.20 , Sepal.Width = 4.9 )
+knn(irisVersVirg[,c(1,2)], df2, irisVersVirg$Species, k = 5, prob = TRUE)
+knn(irisVersVirg[,c(1,2)], df2, irisVersVirg$Species, k = 15, prob = TRUE)
 ```
 
 
@@ -47,9 +58,9 @@ knn(irisVersVirg[,c(1,2)], df, irisVersVirg$Species, k = 15, prob = TRUE)
 #Iris Example Cross Validation
 ```{r}
 #Virginica v. Versicolor
-set.seed(6)
+#set.seed(6)
 splitPerc = .75
-irisVersVirg = iris %>% filter(Species == "versicolor" | Species == "virginica")
+irisVersVirg = iris %>% filter(Species != "setosa")
 summary(irisVersVirg)
 irisVersVirg = droplevels(irisVersVirg,exclude = "setosa")
 summary(irisVersVirg)
@@ -81,6 +92,11 @@ classifications = knn(train[,c(1,2)],test[,c(1,2)],train$Species, prob = TRUE, k
 table(test$Species,classifications)
 CM = confusionMatrix(table(test$Species,classifications))
 CM$overall[1]
+
+#Async Exercise
+Emails = data.frame(Predicted = c("Spam","Ham","Ham", "Ham", "Ham", "Spam", "Ham", "Spam", "Ham", "Spam"), Actual = c("Spam", "Spam", "Ham", "Ham", "Spam", "Ham", "Spam","Ham","Spam","Spam" ))
+
+table(Emails)
 ```
 
 ## Loop for many k and one training / test partition
@@ -101,7 +117,7 @@ plot(accs$k,accs$accuracy, type = "l", xlab = "k")
 
 # Loop for many k and the average of many training / test partition
 ```{r}
-iterations = 500
+iterations = 200
 numks = 30
 
 masterAcc = matrix(nrow = iterations, ncol = numks)
@@ -127,7 +143,7 @@ MeanAcc = colMeans(masterAcc)
 plot(seq(1,numks,1),MeanAcc, type = "l")
 ```
 
-#Internal Cross Validation
+#Internal Leave-One-Out Cross Validation
 ```{r}
 # Simple Example Credit Rating as a Function of income and debt
 
@@ -135,7 +151,18 @@ df = data.frame(income = c(34,67,70,110,89,90,102,104,110,120,170),
 CreditRating = c(750,680,670,675,710,690,715,720,650,710,720), 
 Qualify = c("Yes","No","No","Yes","No","No","Yes","Yes","No","Yes","Yes"))
 
-knn.cv(df[,1:2], df$Qualify, k = 3)
+classifications = knn.cv(df[,1:2], df$Qualify, k = 3) #CV=cross validation, leave one out
+classifications
+data.frame(classifications=classifications,true=df$Qualify)
+confusionMatrix(classifications,df$Qualify)
+
+
+#Async 6.6 Exercise
+classifications1 = knn.cv(iris[,1:2], iris$Species, k = 10) #CV=cross validation, leave one out
+confusionMatrix(classifications1,iris$Species)
+
+classifications2 = knn.cv(irisVersVirg[,1:2], irisVersVirg$Species, k = 10) #CV=cross validation, leave one out
+confusionMatrix(classifications2,irisVersVirg$Species)
 ```
 
 
@@ -152,10 +179,6 @@ confusionMatrix(classifications,dfTrain$Qualify)
 
 
 # Simple Example Credit Rating as a Function of income and debt ... Standardized
-
-dfTrain = data.frame(income = c(34,67,70,110,89,90,102,104,110,120,170), 
-                           CreditRating = c(750,680,670,675,710,690,715,720,650,710,720), 
-                           Qualify = c("Yes","No","No","Yes","No","No","Yes","Yes","No","Yes","Yes"))
 
 dfZTrain = data.frame(Zincome = scale(dfTrain$income), ZCreditRating = scale(dfTrain$CreditRating), Qualify = dfTrain$Qualify)
 
@@ -183,9 +206,9 @@ confusionMatrix(classifications,dfTrain$Qualify)
 #Example Default
 ```{r}
 #read in data Credit Default.csv
-credit = read.csv(file.choose(),header = TRUE)
+credit = read.csv('C:/Users/aleppla/GitRepos/MDS-6306-Doing-Data-Science/Unit 6/Credit Default.csv',header = TRUE)
 
-#make resposnse a factor rather than 0,1
+#make response a factor rather than 0,1
 credit$default.payment.next.month = factor(credit$default.payment.next.month,labels = c("NoDefault","Default"))
 summary(credit)
 #plot the data
@@ -243,9 +266,10 @@ knn(iris[,c(1,2)], df, iris$Species, k = 15, prob = TRUE)
 df = data.frame(Sepal.Length = 5.5 , Sepal.Width = 3.25 )
 knn(iris[,c(1,2)], df, iris$Species, k = 3, prob = TRUE)
 knn(iris[,c(1,2)], df, iris$Species, k = 15, prob = TRUE)
+
 ```
 
-# Archeology
+# Archaeology
 ```{r}
 pottery = read.csv(file.choose(),header = TRUE)
 pottery
@@ -267,9 +291,9 @@ knn(pottery[,1:5],QOI,pottery$Site, prob = TRUE, k = 5)
 # Loop for many k and the average of many training / test partition
 
 set.seed(1)
-iterations = 500
-numks = 60
-splitPerc = .95
+iterations = 100
+numks = 90
+splitPerc = .70
 
 masterAcc = matrix(nrow = iterations, ncol = numks)
 
@@ -280,7 +304,7 @@ for(j in 1:iterations)
   test = iris[-trainIndices,]
   for(i in 1:numks)
   {
-    classifications = knn(train[,c(1,3)],test[,c(1,3)],train$Species, prob = TRUE, k = i)
+    classifications = knn(train[,c(1,2)],test[,c(1,2)],train$Species, prob = TRUE, k = i)
     table(classifications,test$Species)
     CM = confusionMatrix(table(classifications,test$Species))
     masterAcc[j,i] = CM$overall[1]
@@ -291,16 +315,21 @@ for(j in 1:iterations)
 MeanAcc = colMeans(masterAcc)
 
 plot(seq(1,numks,1),MeanAcc, type = "l")
+abline(v=34,col="blue")
 
 which.max(MeanAcc)
 max(MeanAcc)
 
+MaxAcc = knn(train[,c(1,2)],test[,c(1,2)],train$Species, prob = TRUE, k = 34)
+confusionMatrix(table(MaxAcc,test$Species))
 
+```
 
+```{r}
 # FOR LIVE SESSION LEAVE 1 OUT KNN IRIS
 
 set.seed(1)
-iterations = 500
+iterations = 200
 numks = 90
 
 masterAcc = matrix(nrow = iterations, ncol = numks)

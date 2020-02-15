@@ -16,6 +16,9 @@ knitr::opts_chunk$set(echo = TRUE)
 df1 = data.frame(Student_ID = c("1234", "2345", "8910", "9101", "3456", "5678","8888"), Course = c("Time Series", "NLP", "Stats1", "DDS", "DDS", "ML2","Data Mining"))
 df2 = data.frame(Student_ID = c("1234", "2345", "8910", "9101", "3456", "5678","99999", "11111"), Gender = c("M", "F", "M", "F", "F", "F", "M", "M"), State = c("TX", "TX", "CA", "ID", "NY", "FL","NM", "AZ") )
 
+library(dplyr) #includes stringr
+
+
 #inner join
 merge(df1,df2, by = "Student_ID")
 #or
@@ -32,21 +35,24 @@ full_join(df1,df2,by = "Student_ID")
 df1 %>% full_join(df2,by = "Student_ID")
 
 
+
 #left join
 merge(df1,df2, by = "Student_ID",all.x = TRUE)
-left_join(df1,df2, by = "Student_ID")
+left_join(df1,df2, by = "Student_ID") #needs dplyr
 
 
 #right join 
 merge(df1,df2, by = "Student_ID",all.y = TRUE)
-right_join(df1,df2, by = "Student_ID")
+right_join(df1,df2, by = "Student_ID") #needs dplyr
 
 
 #Different Column Names: by.x and by.y
 df3 = data.frame(Student_ID_Number = c("1234", "2345", "8910", "9101", "3456", "5678", "8888"), Course = c("Time Series", "NLP", "Stats1", "DDS", "DDS", "ML2", "Data Mining"))
 df4 = data.frame(Student_ID = c("1234", "2345", "8910", "9101", "3456", "5678","99999", "11111"), Gender = c("M", "F", "M", "F", "F", "F", "M", "M"), State = c("TX", "TX", "CA", "ID", "NY", "FL","NM", "AZ") )
 
+#inner join
 merge(df3,df4, by.x = "Student_ID_Number", by.y = "Student_ID")
+
 ```
 
 
@@ -63,7 +69,7 @@ library(maps)
 library(dplyr)
 library(mapproj)
 
-Acu = read.csv(file.choose(),header = TRUE) # read in company data
+Acu = read.csv('C:/Users/aleppla/GitRepos/MDS-6306-Doing-Data-Science/Unit 5/Acuspike Customer Data.csv',header = TRUE) # read in company data
 lookup = data.frame(abb = state.abb, State = state.name) #makes a data frame with State name and abbreviation. 
 colnames(Acu)[2] = "abb" # Change Column Name
 Acu2 = merge(Acu,lookup,"abb") # make one dataset with state names and abb
@@ -88,7 +94,7 @@ coord_map()
 https://datahelpdesk.worldbank.org/knowledgebase/articles/898599-indicator-api-queries  
 See the csv of Indicators as well.  
 ```{r}
-install.packages("countrycode")
+#install.packages("countrycode")
 library(countrycode)
 countrycode("Albania", 'country.name', 'iso2c') 
 countrycode("Germany", 'country.name', 'iso2c') 
@@ -100,6 +106,8 @@ library(WDI)
 #GDP ("NY.GDP"), Per capita ("PCAP"), in US Currency (KD)
 GDPPC = WDI(indicator="NY.GDP.PCAP.KD", start=2015, end=2015)
 head(GDPPC)
+
+#WHO removed from CRAN for policy violation, archived
 
 library(WHO)
 codes <- get_codes()
@@ -140,14 +148,20 @@ ggplotly(ThePlot)
 #String Basics
 ```{r}
 string1 = "Don't let what you can't do interfere with what you can do."
+string1
+writeLines(string1)
+
 string2 = "\"Don't let what you can't do interfere with what you can do.\" - John Wooden"
+#Escape function \ tells R that the following " is part of the string
 writeLines(string2)
 
 
 string3 = c("IF","YOU","GET","GIVE,", "IF","YOU","LEARN","TEACH", "-MAYA", "ANGELOU")
 string3
 
-#strinr functions
+library(stringr)
+
+#stringr functions
 str_length(string3)
 
 #Collapse Strings... put them together
@@ -162,10 +176,10 @@ str_c(string3, collapse = " ")
 string4 = str_c(string3, collapse = " ")
 string4
 str_sub(string4,1,1)
-str_sub(string4,1,7)
-str_sub(string4,-3,-1)
-str_sub(string4,-14,-1)
-str_sub(string4,3,7)
+str_sub(string4,1,7) #String characters 1-7
+str_sub(string4,-3,-1) #Last 3 characters
+str_sub(string4,-14,-1) #Last 14 characters
+str_sub(string4,3,7) #String characters 3-7
 ```
 
 
@@ -174,34 +188,40 @@ str_sub(string4,3,7)
 ```{r}
 string5 = " \"I've missed more than 9000 shots in my career. I've lost almost 300 games. 26 times, I've been trusted to take the game winning shot and missed. I've failed over and over and over again in my life. And that is why I succeed.\" - Michael Jordan"
 
-str_view(string5, "shot") 
-str_view_all(string5,"shot")
-str_view_all(string5,"shot\\.")
-str_view_all(string5,"\\bshot\\b") #Important
+str_view(string5, "shot") #first hit only for "shot"
+str_view_all(string5,"shot") #all hits for shot
+str_view_all(string5,"shot.") #wildcard, shot.=shot*=shot...
+str_view_all(string5,"shot\\.") #use double escape character \\ to escape . (wildcard) and " (string) to find "shot." 
+str_view_all(string5,"\\bshot\\b") #Important for text mining, only finds " shot "
 str_view_all(string5,"I")
 str_view_all(string5," I ")
-str_view_all(string5,"\\. I") #Find "I" at the beginning of a sentence. 
-str_view_all(string5,"(\\. I| \"I)")
+str_view_all(string5,"\\. I") #Find "I" after a sentence (assumes single space after period) 
+str_view_all(string5,"(\\. I|\"I)") #Find "I" after ". " or after a quotation mark(")
 #How can we count how many times it comes up in the string?  The answer is coming.
 
+string2 = "\"Don't let what you can't do interfere with what you can do.\" - John Wooden"
 
-str_view(string2, "do.") # . is the wildcard character 
+str_view(string2, "do.") # . is the wildcard character, but doesn't include "Do" (case sensitive) 
 str_view(string2, "do\\.") # need \\. because \ is an escape in both strings and regular expressions
+
+#How to find both "do" and "do."?
+str_view_all(string2, "do.")
 ```
 
 ##Anchors
 ```{r}
-string6 = " \"Sometimes when you innovate, you make mistakes. It is best to admit them quickly, and get on with improving your other innovations.\" - Steve Jobs"
-str_view(string1, "^Don't")
+str_view(string1, "^Don't") #Does it start with "Don't"?  If so, print string and highlight "Don't"
 str_view(string1, "^interfere")
-str_view(string3, "^T")
+str_view(string3, "^T") #Do any of the string start with "T"?  If so, print string and highlight "T"
+
+string6 = " \"Sometimes when you innovate, you make mistakes. It is best to admit them quickly, and get on with improving your other innovations.\" - Steve Jobs"
 str_view(string6, "^\"Some") #Why Nothing ... we will come back to this.
-str_view(string6, "Jobs$")
+str_view(string6, "Jobs$") #$ is for anchor at the end
 
 #Find digits and whitespace
-str_view(string5,"\\d")
-str_view_all(string5,"\\d")
-str_view_all(string6,"\\s") #Ahh... there was white space
+str_view(string5,"\\d") #show first digit (\d)
+str_view_all(string5,"\\d+")
+str_view_all(string6,"\\s") #Ahh... there was white space (\s)
 str_view(string6, "^ \"Some") 
 ```
 
@@ -219,19 +239,19 @@ str(df) # quotes are factors by default on this machine.
 df = data.frame(quotes = c(string2,string4,string5,string6), stringsAsFactors = FALSE)
 df$quotes
 str_view(df$quotes,"(Steve|Jobs)")
-str_view_all(df$quotes,"[abc]")
-str_view_all(df$quotes,"[^abc]")
+str_view_all(df$quotes,"[abc]") #finds all letters a, b, or c
+str_view_all(df$quotes,"[^abc]") #finds all letters NOT a, b, or c
 ```
 
-## Repitition
+## Repetition
 ```{r}
 # ?: 0 or 1
 # +: 1 or more
 # *: 0 or more
 
-str_view(df$quotes, "0+") #Greedy
-str_view(df$quotes, "[sn]+") #Greedy
-str_view_all(df$quotes, "[sn]+")
+str_view(df$quotes, "0+") #Greedy - finds the most sequential 0s for each quote
+str_view(df$quotes, "[sn]+") #Greedy - finds the most sequential s's or n's for each quote (case sensitive)
+str_view_all(df$quotes, "[sn]+") #finds all s's and n's in all quotes
 
 #More Repitions
 # {n}: exactly n
@@ -305,6 +325,8 @@ df %>% filter(str_detect(quotes,"John Wooden"))
 
 #Search for Matches and a quick plot
 ```{r}
+head(sentences)
+
 colors = c("orange","blue","yellow","green","purple","brown","red")
 color_expression = str_c(colors, collapse = "|")
 color_expression
@@ -358,8 +380,7 @@ roster$Gender = str_replace(roster$Gender,"(\\bfemale\\b|\\bF\\b)", "Female")
 
 
 
-
-str_replace(roster$Major,"(\\?|)", "NA")
+str_replace(roster$Major,"(\\?|\"\")", "NA")
 
 roster$Major = str_replace(roster$Major,"(\\?)", "")
 roster
@@ -405,6 +426,9 @@ str_split(s2,boundary("word"))
 
 #regex()
 ```{r}
+#regex = regular expressions
+#Allows you to add options to string filters/logic, like ignore_case 
+
 roster = data.frame(Name = c("John", "Nancy", "Fred", "Sam", "Julie", "Pat", "Mel", "Jay"), Gender = c("male", "F", "M", "Female", "femaLe","m","f","MaLe"), Major = c("NA","Math","Comp Sci", "NA", "NA", "NA", "English", "EE"))
 roster
 str(roster)
@@ -446,10 +470,10 @@ library(jsonlite)
 library(dplyr)
 library(tidyverse)
 
-NYTIMES_KEY = "OG89fUubcS8FXofVrLA4dmIOHh5omiFa" #Your Key Here … get from NTY API website
+NYTIMES_KEY = "oxQiJjy4J4GKupgC5XfaiCg32PFfN7E1" #Your Key Here … get from NTY API website
 
 # Let's set some parameters
-term <- "Central+Park+Jogger" # Need to use + to string together separate words
+term <- "Data+Science" # Need to use + to string together separate words
 begin_date <- "19890419"
 end_date <- "19910419"
 
@@ -460,9 +484,9 @@ baseurl <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=",t
 baseurl
 
 initialQuery <- jsonlite::fromJSON(baseurl)
-maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1)
+#maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1)
 
-maxPages
+maxPages = 7
 
 pages <- list()
 for(i in 0:maxPages){
@@ -498,7 +522,13 @@ allNYTSearch[!is.na(allNYTSearch$NewsOrOther),] %>%
   ggplot() +
   geom_bar(aes(y=percent, x=NewsOrOther, fill=NewsOrOther), stat = "identity") + coord_flip()
 
-
+#Same output with geom_col, simpler
+allNYTSearch[!is.na(allNYTSearch$NewsOrOther),] %>% 
+  group_by(NewsOrOther) %>%
+  dplyr::summarize(count=n()) %>%
+  mutate(percent = (count / sum(count))*100) %>%
+  ggplot() +
+  geom_col(aes(y=percent, x=NewsOrOther, fill=NewsOrOther)) + coord_flip()
 
 #Identify Article and Tokenize
 
@@ -536,7 +566,7 @@ importantWords
 newsArticles = allNYTSearch %>% filter(NewsOrOther == "News")
 otherArticles = allNYTSearch %>% filter(NewsOrOther == "Other")
 
-numNewsArticles = dim(newsArticles)[1]
+numNewsArticles = dim(newsArticles)[1] #[1] = number of rows
 numOtherArticles = dim(otherArticles)[1]
 
 numNewsArticles
@@ -548,9 +578,9 @@ thePercentHolderOther = c()
 for(i in 1 : length(importantWords)) #for each important word in the headline
 {
   #number of News articles that have the ith word in the headline of interest
-  numNews = sum(str_count(newsArticles$response.docs.headline.main,importantWords[i]))
+  numNews = sum(str_count(newsArticles$response.docs.headline.main[-4],importantWords[i]))  #Leave out article to classify = 4
   #number of Other articles that have the ith word in the headline of interest
-   numOther = sum(str_count(otherArticles$response.docs.headline.main,importantWords[i]))
+   numOther = sum(str_count(otherArticles$response.docs.headline.main[-4],importantWords[i]))
  
   #percentage of News articles that have the ith word in the headline of interest 
   thePercentHolderNews[i] = numNews / numNewsArticles
@@ -585,7 +615,7 @@ articleStats
 #Tidy and Plot
 articleStats[,c(2,3)] %>% gather(Type,Percent) %>% mutate(Word = rep(articleStats$Word,2)) %>% ggplot(aes(y = Percent, x = Type, fill = Word)) + geom_col()
 
-articleStats[,c(2,3)] %>% gather(Type,Percent) %>% mutate(Word = rep(articleStats$Word,2)) %>% ggplot(aes(y = Percent, x = Type, fill = Word)) + geom_col() + facet_wrap(~Word)
+articleStats[,c(2,3)] %>% gather(Type,Percent) %>% mutate(Word = rep(articleStats$Word,2)) %>% ggplot(aes(y = Percent, x = Type, fill = Word)) + geom_col() + facet_grid(~Word)
 ```
 
 

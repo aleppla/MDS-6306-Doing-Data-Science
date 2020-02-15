@@ -7,14 +7,15 @@ output: html_document
 
 #Volleyball Example
 ```{r}
-vball = read.csv(file.choose(),header = TRUE)
+vball = read.csv('~/MDS-6306-Doing-Data-Science/Unit 7/Bayes Volleyball.csv',header = TRUE)
 vball
 
 install.packages("e1071") #naiveBayes()
 library(e1071)
 
 model = naiveBayes(Volleyball~.,data = vball)
-predict(model,vball[,c(1,2)])
+predict(model,vball[,c(1,2)]) #classifications
+predict(model,vball[,c(1,2)],type="raw") #probabilities
 
 df = data.frame(Outlook = "Rain", Wind = "Hi")
 predict(model,df) #just classifications
