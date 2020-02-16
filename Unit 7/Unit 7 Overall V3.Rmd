@@ -53,12 +53,12 @@ library(jsonlite)
 library(dplyr)
 library(tidyverse)
 
-NYTIMES_KEY = "OG89fUubcS8FXofVrLA4dmIOHh5omiFa" #Your Key Here … get from NTY API website
+NYTIMES_KEY = "oxQiJjy4J4GKupgC5XfaiCg32PFfN7E1" #Your Key Here … get from NTY API website
 
 # Let's set some parameters
-term <- "Central+Park+Jogger" # Need to use + to string together separate words
-begin_date <- "19900419"
-end_date <- "19900619"
+term <- "Data+Science" # Need to use + to string together separate words
+begin_date <- "20180901"
+end_date <- "20181001"
 
 baseurl <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=",term,
                   "&begin_date=",begin_date,"&end_date=",end_date,
@@ -116,7 +116,7 @@ allNYTSearchTest = allNYTSearch[-trainInd,]
 
 #This function returns P(News | Keyword) 
 #P(News|KW) = P(KW|News)* P(News) / P(KW)
-Pnews_word = function(key_word, trainingSet, alphaLaplace = 1, betaLaplace = 1) # alpha and beta are for laplace smoothing
+Pnews_word = function(key_word, trainingSet, alphaLaplace = 1, betaLaplace = 1) # alpha and beta are for laplace smoothing to deal with multiplying by 0 probabilities
 {
   trainingSet$response.docs.headline.main = unlist(str_replace_all(trainingSet$response.docs.headline.main,"[^[:alnum:] ]", "")) #Take out all but alpha numeric characters from training headlines
   
@@ -179,6 +179,10 @@ allNYTSearchTest$Classified = ifelse(theScoreHolderNews > theScoreHolderOther,"N
 
 #Confusion Matrix
 table(allNYTSearchTest$Classified,allNYTSearchTest$NewsOrOther) #Actual in Columns
+
+library(class)
+library(caret)
+
 confusionMatrix(factor(allNYTSearchTest$Classified),factor(allNYTSearchTest$NewsOrOther))
 
 ```
@@ -205,12 +209,6 @@ x = seq(100,180,.1)
 y = dnorm(x,130,9)
 df = data.frame(x = x, y = y)
 df %>% ggplot(aes(x = x, y = y)) + geom_line() + xlab("B") + ylab("Probability Density") + ggtitle("Probability Density of Weight of Women")
-
-# Weight Male
-x = seq(100,180,.1)
-y = dnorm(x,150,10)
-df = data.frame(x = x, y = y)
-df %>% ggplot(aes(x = x, y = y)) + geom_line() + xlab("B") + ylab("Probability Density") + ggtitle("Probability Density of Weight of Men")
 
 # Weight Male
 x = seq(100,180,.1)
