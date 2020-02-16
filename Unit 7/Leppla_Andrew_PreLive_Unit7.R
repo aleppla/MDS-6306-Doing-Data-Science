@@ -57,7 +57,7 @@ model4 = naiveBayes(trainTitanic[,c(3,13)],trainTitanic$Survived)
 predict(model4,testTitanic[,c(3,13)])
 confusionMatrix(table(predict(model4,testTitanic[,c(3,13)]),testTitanic$Survived))
 
-#1d. Repeat random seeds and compare
+#1d. Repeat 3-4 random seeds and compare
 
 seed=c()
 Acc=c()
@@ -82,4 +82,73 @@ Spec[i]=CM$byClass[2]
 
 cbind(seed,Acc,Sens,Spec)
 
+#1e. Repeat 100 random seeds and compare
 
+seed=c()
+Acc=c()
+Sens=c()
+Spec=c()
+meanAcc=c()
+meanSens=c()
+meanSpec=c()
+
+for (i in 1:100)
+{
+  seed[i]=i
+  set.seed(i)
+  trainIndices = sample(seq(1:length(titanicClean$Age)),round(.7*length(titanicClean$Age)))
+  trainTitanic = titanicClean[trainIndices,]
+  testTitanic = titanicClean[-trainIndices,]
+  
+  model3 = naiveBayes(trainTitanic[,c(3,13)],trainTitanic$Survived)
+  predict3=predict(model3,testTitanic[,c(3,13)])
+  CM=confusionMatrix(table(predict3,testTitanic$Survived))
+  Acc[i]=CM$overall[1]
+  Sens[i]=CM$byClass[1]
+  Spec[i]=CM$byClass[2]
+  meanAcc[i]=mean(Acc)
+  meanSens[i]=mean(Sens)
+  meanSpec[i]=mean(Spec)
+}
+
+random100=cbind(Acc,Sens,Spec)
+mean100=cbind(meanAcc,meanSens,meanSpec)
+tail(mean100,n=1)
+
+#1f. Including Sex (column 5) in the NB Model  
+
+model_s = naiveBayes(trainTitanic[,c(3,5,13)],trainTitanic$Survived)
+confusionMatrix(table(predict(model4,testTitanic[,c(3,5,13)]),testTitanic$Survived))
+
+#1e. Repeat 100 random seeds and compare with sex in NB model
+
+seed=c()
+Acc=c()
+Sens=c()
+Spec=c()
+meanAcc=c()
+meanSens=c()
+meanSpec=c()
+
+for (i in 1:100)
+{
+  seed[i]=i
+  set.seed(i)
+  trainIndices = sample(seq(1:length(titanicClean$Age)),round(.7*length(titanicClean$Age)))
+  trainTitanic = titanicClean[trainIndices,]
+  testTitanic = titanicClean[-trainIndices,]
+  
+  model3 = naiveBayes(trainTitanic[,c(3,5,13)],trainTitanic$Survived)
+  predict3=predict(model3,testTitanic[,c(3,5,13)])
+  CM=confusionMatrix(table(predict3,testTitanic$Survived))
+  Acc[i]=CM$overall[1]
+  Sens[i]=CM$byClass[1]
+  Spec[i]=CM$byClass[2]
+  meanAcc[i]=mean(Acc)
+  meanSens[i]=mean(Sens)
+  meanSpec[i]=mean(Spec)
+}
+
+random100=cbind(Acc,Sens,Spec)
+mean100=cbind(meanAcc,meanSens,meanSpec)
+tail(mean100,n=1)
